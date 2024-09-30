@@ -16,6 +16,7 @@ from App.controllers import (
 
 LOGGER = logging.getLogger(__name__)
 
+
 '''
    Unit Tests
 '''
@@ -75,5 +76,5 @@ class UsersIntegrationTests(unittest.TestCase):
         update_user(1, "ronnie")
         user = get_user(1)
         assert user.username == "ronnie"
-        
+
 
