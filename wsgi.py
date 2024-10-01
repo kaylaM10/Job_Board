@@ -3,7 +3,7 @@ from flask import Flask
 from flask.cli import with_appcontext, AppGroup
 
 from App.database import db, get_migrate
-from App.models import User,Job,Applicants
+from App.models import User,Job,Applicant
 from App.main import create_app
 from App.controllers import ( 
     create_user, 
@@ -78,6 +78,7 @@ def user_tests_command(type):
     else:
         sys.exit(pytest.main(["-k", "App"]))
 
+# Command to create a job
 @click.command('create-job')
 @click.argument('title')
 @click.argument('description')
@@ -87,6 +88,7 @@ def create_job_command(title,description,manager_id,expected_qualifications):
     create_job(title, description, manager_id, expected_qualifications)
     click.echo(f'Job {title} created!')
 
+# Command to apply for a job
 @click.command('apply-job')
 @click.argument('job_id')
 @click.argument('user_id')

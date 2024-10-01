@@ -26,8 +26,13 @@ def create_app(overrides={}):
     load_config(app, overrides)
     CORS(app)
     add_auth_context(app)
+
+    app.config['UPLOADED_PHOTOS_DEST'] = os.path.join(app.instance_path, 'uploads/photos')
+    app.config['UPLOADED_DOCUMENTS_DEST'] = os.path.join(app.instance_path, 'uploads/documents')
     photos = UploadSet('photos', TEXT + DOCUMENTS + IMAGES)
     configure_uploads(app, photos)
+    if not os.path.exists(app.instance_path):
+        os.makedirs(app.instance_path)
     add_views(app)
     init_db(app)
     jwt = setup_jwt(app)
