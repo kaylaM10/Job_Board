@@ -1,11 +1,9 @@
-from App.models import User,Job,Applicant
+from App.models import User, Job, Applicant
 from App.database import db
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import unset_jwt_cookies
+from flask_jwt_extended import create_access_token, unset_jwt_cookies
 
-
-def create_user(username, password):
-    newuser = User(username=username, password=password)
+def create_user(username, password, first_name, last_name):
+    newuser = User(username=username, password=password, first_name=first_name, last_name=last_name)
     newuser.set_password(password)
     db.session.add(newuser)
     db.session.commit()
@@ -22,27 +20,23 @@ def get_all_users():
 
 def get_all_users_json():
     users = User.query.all()
-    if not users:
-        return []
-    users = [user.get_json() for user in users]
-    return users
+    return [user.get_json() for user in users] if users else []
 
 def update_user(id, username):
     user = get_user(id)
     if user:
         user.username = username
-        db.session.add(user)
-        return db.session.commit()
-    return None
+        db.session.commit()
+    return user
 
-def login(username,password):
+def login(username, password):
     user = User.query.filter_by(username=username).first()
     if user and user.check_password(password):
         return create_access_token(identity=user.id)
     return None
 
-def create_job(title,description,manager_id,expected_qualifications):
-    job = Job(title=title,description=description,manager_id=manager_id,expected_qualifications=expected_qualifications)
+def create_job(title, description, manager_id, expected_qualifications):
+    job = Job(title=title, description=description, user_id=manager_id, expected_qualifications=expected_qualifications)
     db.session.add(job)
     db.session.commit()
     return job
@@ -59,28 +53,35 @@ def filter_job_title(title):
 def close_job(job_id):
     job = Job.query.get(job_id)
     if job:
+        # Ensure the Job model has a status attribute or remove this line.
         job.status = 'closed'
         db.session.commit()
     return job
 
-def apply_to_job(job_id,user_id,qualifications,status,cover_letter):
-    applicant = Applicant(user_id=user_id, job_id=job_id, qualifications=qualifications, status = status, cover_letter = cover_letter)
+def apply_to_job(job_id, user_id, applicant_name, qualifications, status='applied', cover_letter=None):
+    applicant = Applicant(
+        user_id=user_id, 
+        job_id=job_id, 
+        applicant_name=applicant_name, 
+        qualifications=qualifications, 
+        status=status, 
+        cover_letter=cover_letter
+    )
     db.session.add(applicant)
     db.session.commit()
     return applicant
 
-def update_job(job_id,title,description,expected_qualifications):
-    job = job.query.get(job_id)
+def update_job(job_id, title, description, expected_qualifications):
+    job = Job.query.get(job_id)
     if job:
         job.title = title
-        job.desctription = description
+        job.description = description
         job.expected_qualifications = expected_qualifications
         db.session.commit()
-        return job
-    return None
+    return job
 
-def detele_job(job_id):
-    job = job.query.get(job_id)
+def delete_job(job_id):
+    job = Job.query.get(job_id)
     if job:
         db.session.delete(job)
         db.session.commit()
