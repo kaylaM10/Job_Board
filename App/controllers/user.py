@@ -2,8 +2,8 @@ from App.models import User, Job, Applicant
 from App.database import db
 from flask_jwt_extended import create_access_token, unset_jwt_cookies
 
-def create_user(username, password, first_name, last_name):
-    newuser = User(username=username, password=password, first_name=first_name, last_name=last_name)
+def create_user(username, password, first_name, last_name, email):
+    newuser = User(username=username, password=password, first_name=first_name, last_name=last_name, email=email)
     newuser.set_password(password)
     db.session.add(newuser)
     db.session.commit()
@@ -49,14 +49,6 @@ def view_job_details(job_id):
 
 def filter_job_title(title):
     return Job.query.filter(Job.title.contains(title)).all()
-
-def close_job(job_id):
-    job = Job.query.get(job_id)
-    if job:
-        # Ensure the Job model has a status attribute or remove this line.
-        job.status = 'closed'
-        db.session.commit()
-    return job
 
 def apply_to_job(job_id, user_id, applicant_name, qualifications, status='applied', cover_letter=None):
     applicant = Applicant(

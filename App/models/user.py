@@ -11,18 +11,20 @@ class User(db.Model):
     email = db.Column(db.String(100), nullable=False, unique=True)
     password = db.Column(db.String(120), nullable=False)
 
-    def __init__(self, username, password, first_name, last_name):
+    def __init__(self, username, password, first_name, last_name,email):
         self.username = username
         self.set_password(password)
         self.first_name = first_name
         self.last_name = last_name
+        self.email = email
 
     def get_json(self):
         return {
             'id': self.id,
             'username': self.username,
             'first_name': self.first_name,
-            'last_name': self.last_name
+            'last_name': self.last_name,
+            'email': self.email
         }
 
     def set_password(self, password):
