@@ -1,13 +1,25 @@
 from App.models import User, Job, Applicant
 from App.database import db
 from flask_jwt_extended import create_access_token, unset_jwt_cookies
+from werkzeug.security import generate_password_hash
 
 def create_user(username, password, first_name, last_name, email):
-    newuser = User(username=username, password=password, first_name=first_name, last_name=last_name, email=email)
-    newuser.set_password(password)
-    db.session.add(newuser)
+    # Check if the email already exists
+    existing_user = User.query.filter_by(email=email).first()
+    if existing_user:
+        raise ValueError("A user with this email already exists.")
+    
+    hashed_password = generate_password_hash(password)
+
+    new_user = User(
+        username=username,
+        password=generate_password_hash(password),  
+        first_name=first_name,
+        last_name=last_name,
+        email=email
+    )
+    db.session.add(new_user)
     db.session.commit()
-    return newuser
 
 def get_user_by_username(username):
     return User.query.filter_by(username=username).first()
